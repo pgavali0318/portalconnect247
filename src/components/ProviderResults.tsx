@@ -167,7 +167,7 @@ export default function ProviderResults({ address, zipCode, onBack }: ProviderRe
           <li>Coordinate timing between all three services</li>
         </ol>
         <p className="mt-4 text-sm text-indigo-700">
-          💡 <strong>Pro tip:</strong> Mention you're moving to get the best new customer deals!
+         <strong>Pro tip:</strong> Mention you&apos;re moving to get the best new customer deals!
         </p>
       </div>
     </div>

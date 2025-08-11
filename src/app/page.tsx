@@ -115,7 +115,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-center text-gray-600 mt-6">
-                More cities coming soon! We're expanding to all major metropolitan areas.
+                More cities coming soon! We&apos;re expanding to all major metropolitan areas.
               </p>
             </div>
           </>
