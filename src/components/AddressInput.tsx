@@ -1,94 +1,101 @@
+// src/components/AddressInput.tsx - Updated with Navy Colors
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface AddressInputProps {
-  onAddressSelect: (address: string, zipCode: string) => void;
+  onAddressSelect: (data: { address: string; zipCode: string }) => void;
 }
 
 export default function AddressInput({ onAddressSelect }: AddressInputProps) {
-  const [inputValue, setInputValue] = useState('');
+  const [address, setAddress] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Fix hydration issues
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!address.trim() || !zipCode.trim()) return;
     
-    if (!inputValue.trim() || !zipCode.trim()) {
-      alert('Please fill in both address and ZIP code');
-      return;
-    }
-
     setIsLoading(true);
-    
-    // Simulate processing time
-    setTimeout(() => {
-      onAddressSelect(inputValue, zipCode);
-      setIsLoading(false);
-    }, 2000);
+    onAddressSelect({ address: address.trim(), zipCode: zipCode.trim() });
+    setIsLoading(false);
   };
+
+  // Prevent hydration errors by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="w-full">
+        <div className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Street Address
+              </label>
+              <div className="block w-full px-4 py-3 text-base border border-gray-300 rounded-lg bg-gray-100 h-12"></div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ZIP Code
+              </label>
+              <div className="block w-full px-4 py-3 text-base border border-gray-300 rounded-lg bg-gray-100 h-12"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            📍 Street Address
-          </label>
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="123 Main St, Columbus, OH"
-            className="block w-full px-3 py-4 text-lg border border-gray-300 rounded-xl 
-                     focus:ring-2 focus:ring-voilet-500 focus:border-voilet-500 
-                     placeholder-gray-500"
-            disabled={isLoading}
-          />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Street Address
+            </label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="123 Main Street, City, State"
+              className="block w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors"
+              disabled={isLoading}
+              suppressHydrationWarning
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ZIP Code
+            </label>
+            <input
+              type="text"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              placeholder="49001"
+              maxLength={5}
+              pattern="[0-9]{5}"
+              className="block w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors"
+              disabled={isLoading}
+              suppressHydrationWarning
+            />
+          </div>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            📮 ZIP Code
-          </label>
-          <input
-            type="text"
-            value={zipCode}
-            onChange={(e) => setZipCode(e.target.value)}
-            placeholder="43215"
-            className="block w-full px-3 py-4 text-lg border border-gray-300 rounded-xl 
-                     focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 
-                     placeholder-gray-500"
-            disabled={isLoading}
-          />
-        </div>
-
+        
         <button
           type="submit"
-          disabled={isLoading}
-          className="w-full flex items-center justify-center px-6 py-4 text-lg font-medium 
-         text-white bg-violet-600 border border-transparent rounded-xl 
-         hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
-         focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed
-         transition-all duration-200"
+          disabled={isLoading || !address.trim() || !zipCode.trim()}
+          className="w-full bg-slate-700 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-slate-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
-          {isLoading ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Finding Real Providers...
-            </>
-          ) : (
-            <>
-              🔍 Find My Providers
-            </>
-          )}
+          {isLoading ? 'Searching...' : 'Find My Providers'}
         </button>
       </form>
-
-      <div className="mt-6 text-center text-sm text-gray-600">
-        <p>✅ Currently serving Michigan, Ohio, and Indiana</p>
-        <p className="mt-1">🏙️ Coverage: Detroit • Columbus • Indianapolis • Ann Arbor • Toledo</p>
-      </div>
     </div>
   );
 }
